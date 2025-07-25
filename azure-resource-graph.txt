@@ -14,3 +14,29 @@ resources
 ) on miId
 | project subscriptionId, miResourceGroup, miName, dbName, miLocation
 
+resources
+| where type == "microsoft.sql/managedinstances/databases"
+| extend dbName = name,
+         miId = tostring(split(id, "/databases/")[0])
+| join kind=inner (
+    resources
+    | where type == "microsoft.sql/managedinstances"
+    | project miName = name,
+              miLocation = location,
+              miSku = sku.name,
+              miTier = sku.tier,
+              miId = id,
+              miResourceGroup = resourceGroup,
+              miSubscription = subscriptionId
+) on miId
+| project 
+    miSubscription,
+    miResourceGroup,
+    miName,
+    miLocation,
+    miSku,
+    miTier,
+    dbName
+| order by miSubscription, miName, dbName
+
+
