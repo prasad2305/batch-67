@@ -21,19 +21,27 @@ resources
               miTier = sku.tier,
               miId = id,
               miResourceGroup = resourceGroup,
-              miSubscription = subscriptionId,
+              miSubscriptionId = subscriptionId,
               failoverPartnerId
 ) on miId
+| join kind=leftouter (
+    resourcecontainers
+    | where type == "microsoft.resources/subscriptions"
+    | project miSubscriptionId = id,
+              subscriptionDisplayName = name
+) on miSubscriptionId
 | project 
-    miSubscription,
+    subscriptionDisplayName,
+    miSubscriptionId,
     miResourceGroup,
     miName,
+    dbName,
     miLocation,
     miSku,
     miTier,
-    dbName,
     failoverPartnerId
-| order by miSubscription, miName, dbName
+| order by subscriptionDisplayName, miName, dbName
+
 
 
 
