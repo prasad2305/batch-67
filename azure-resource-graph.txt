@@ -4,15 +4,8 @@ Resources
 | extend zoneRedundant = tostring(properties.zoneRedundant)
 | project name, location, zoneRedundant, sku = sku.name, tier = sku.tier, kind, resourceGroup, subscriptionId
 
-resources
-| where type == "microsoft.sql/managedinstances/databases"
-| extend dbName = name, miId = tostring(split(id, "/databases/")[0])
-| join kind=inner (
-    resources
-    | where type == "microsoft.sql/managedinstances"
-    | project miName = name, miLocation = location, miId = id, miResourceGroup = resourceGroup, subscriptionId
-) on miId
-| project subscriptionId, miResourceGroup, miName, dbName, miLocation
+
+Azure SQL MI
 
 resources
 | where type == "microsoft.sql/managedinstances/databases"
@@ -21,13 +14,15 @@ resources
 | join kind=inner (
     resources
     | where type == "microsoft.sql/managedinstances"
+    | extend failoverPartnerId = tostring(properties.partnerManagedInstanceId)
     | project miName = name,
               miLocation = location,
               miSku = sku.name,
               miTier = sku.tier,
               miId = id,
               miResourceGroup = resourceGroup,
-              miSubscription = subscriptionId
+              miSubscription = subscriptionId,
+              failoverPartnerId
 ) on miId
 | project 
     miSubscription,
@@ -36,7 +31,11 @@ resources
     miLocation,
     miSku,
     miTier,
-    dbName
+    dbName,
+    failoverPartnerId
 | order by miSubscription, miName, dbName
+
+
+
 
 
