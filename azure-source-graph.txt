@@ -1,5 +1,0 @@
-Azure App Service Plans
-Resources
-| where type == "microsoft.web/serverfarms"
-| extend zoneRedundant = tostring(properties.zoneRedundant)
-| project name, location, zoneRedundant, sku = sku.name, tier = sku.tier, kind, resourceGroup, subscriptionId

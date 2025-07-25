@@ -1,0 +1,16 @@
+Azure App Service Plans
+Resources
+| where type == "microsoft.web/serverfarms"
+| extend zoneRedundant = tostring(properties.zoneRedundant)
+| project name, location, zoneRedundant, sku = sku.name, tier = sku.tier, kind, resourceGroup, subscriptionId
+
+resources
+| where type == "microsoft.sql/managedinstances/databases"
+| extend dbName = name, miId = tostring(split(id, "/databases/")[0])
+| join kind=inner (
+    resources
+    | where type == "microsoft.sql/managedinstances"
+    | project miName = name, miLocation = location, miId = id, miResourceGroup = resourceGroup, subscriptionId
+) on miId
+| project subscriptionId, miResourceGroup, miName, dbName, miLocation
+
