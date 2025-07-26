@@ -42,6 +42,19 @@ resources
     failoverPartnerId
 | order by subscriptionDisplayName, miName, dbName
 
+AKS
+
+Resources
+| where type == "microsoft.containerservice/managedclusters"
+| project 
+    subscriptionId,
+    subscriptionName = tostring(tags["SubscriptionName"]),
+    resourceGroup,
+    name,
+    location,
+    kubernetesVersion = properties.kubernetesVersion
+
+
 
 
 
